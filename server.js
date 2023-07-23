@@ -67,3 +67,53 @@ function viewEmployees() {
     startApp();
   });
 }
+
+// Function to add an employee
+function addEmployee() {
+  inquirer
+    .prompt([
+      {
+        name: "first_name",
+        type: "input",
+        message: "Enter the employee's first name:",
+      },
+      {
+        name: "last_name",
+        type: "input",
+        message: "Enter the employee's last name:",
+      },
+      {
+        name: "department",
+        type: "input",
+        message: "Enter the employee's department:",
+      },
+      {
+        name: "role",
+        type: "input",
+        message: "Enter the employee's role:",
+      },
+      {
+        name: "salary",
+        type: "input",
+        message: "Enter the employee's salary:",
+      },
+    ])
+    .then((answers) => {
+      // Insert the new employee into the database
+      db.query(
+        "INSERT INTO employees SET ?",
+        {
+          first_name: answers.first_name,
+          last_name: answers.last_name,
+          department: answers.department,
+          role: answers.role,
+          salary: answers.salary,
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.log("Employee added successfully!");
+          startApp();
+        }
+      );
+    });
+}
