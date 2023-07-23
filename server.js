@@ -96,6 +96,10 @@ function addEmployee() {
         name: "salary",
         type: "input",
         message: "Enter the employee's salary:",
+        validate: (value) => {
+          const isValid = !isNaN(parseFloat(value));
+          return isValid || "Please enter a valid number";
+        },
       },
     ])
     .then((answers) => {
@@ -112,6 +116,41 @@ function addEmployee() {
         (err, res) => {
           if (err) throw err;
           console.log("Employee added successfully!");
+          startApp();
+        }
+      );
+    });
+}
+// Function to update an employee's role
+function updateEmployeeRole() {
+  inquirer
+    .prompt([
+      {
+        name: "employee_id",
+        type: "input",
+        message: "Enter the ID of the employee whose role you want to update:",
+      },
+      {
+        name: "new_role",
+        type: "input",
+        message: "Enter the new role for the employee:",
+      },
+    ])
+    .then((answers) => {
+      // Update the employee's role in the database
+      db.query(
+        "UPDATE employees SET ? WHERE ?",
+        [
+          {
+            role: answers.new_role,
+          },
+          {
+            id: answers.employee_id,
+          },
+        ],
+        (err, res) => {
+          if (err) throw err;
+          console.log("Employee role updated successfully!");
           startApp();
         }
       );
