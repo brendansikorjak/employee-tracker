@@ -55,3 +55,15 @@ function startApp() {
       }
     });
 }
+// Function to view all employees
+function viewEmployees() {
+  db.query("SELECT * FROM employees", (err, res) => {
+    if (err) throw err;
+
+    // Display the employee data
+    console.table(res);
+
+    // Go back to the main menu
+    startApp();
+  });
+}
