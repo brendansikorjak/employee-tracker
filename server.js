@@ -14,3 +14,44 @@ db.connect((err) => {
   console.log("Connected to the database.");
   startApp();
 });
+
+// Function to start the application
+function startApp() {
+  inquirer
+    .prompt({
+      name: "action",
+      type: "list",
+      message: "Select an action:",
+      choices: [
+        "View all employees",
+        "Add an employee",
+        "Update an employee role",
+        "Exit",
+      ],
+    })
+    .then((answer) => {
+      switch (answer.action) {
+        case "View all employees":
+          viewEmployees();
+          break;
+
+        case "Add an employee":
+          addEmployee();
+          break;
+
+        case "Update an employee role":
+          updateEmployeeRole();
+          break;
+
+        case "Exit":
+          db.end();
+          console.log("Connection closed.");
+          process.exit(0);
+
+        default:
+          console.log("Invalid choice.");
+          startApp();
+          break;
+      }
+    });
+}
