@@ -26,6 +26,7 @@ function startApp() {
         "View all employees",
         "Add an employee",
         "Update an employee role",
+        "View all departments",
         "Exit",
       ],
     })
@@ -41,6 +42,10 @@ function startApp() {
 
         case "Update an employee role":
           updateEmployeeRole();
+          break;
+
+        case "View all departments":
+          viewDepartments();
           break;
 
         case "Exit":
@@ -61,6 +66,19 @@ function viewEmployees() {
     if (err) throw err;
 
     // Display the employee data
+    console.table(res);
+
+    // Go back to the main menu
+    startApp();
+  });
+}
+
+// Function to view all departments
+function viewDepartments() {
+  db.query("SELECT * FROM departments", (err, res) => {
+    if (err) throw err;
+
+    // Display the department data
     console.table(res);
 
     // Go back to the main menu
