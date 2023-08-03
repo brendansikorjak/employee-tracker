@@ -65,7 +65,7 @@ function viewEmployees() {
   db.query(
     // "SELECT * FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id",
     // "SELECT first_name AS [First Name], last_name AS [Last Name] FROM employees",
-    "SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name, roles.salary FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id",
+    "SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department, roles.salary FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id",
     (err, res) => {
       if (err) throw err;
 

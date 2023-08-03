@@ -1,4 +1,4 @@
-INSERT INTO departments (name)
+INSERT INTO departments (department)
 VALUES ('Tennis'),
 ('Soccer'),
 ('Golf');
