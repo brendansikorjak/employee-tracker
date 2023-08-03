@@ -62,15 +62,20 @@ function startApp() {
 }
 // Function to view all employees
 function viewEmployees() {
-  db.query("SELECT * FROM employees", (err, res) => {
-    if (err) throw err;
+  db.query(
+    // "SELECT * FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id",
+    // "SELECT first_name AS [First Name], last_name AS [Last Name] FROM employees",
+    "SELECT employees.id, employees.first_name, employees.last_name, roles.title, roles.salary, departments.name FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id",
+    (err, res) => {
+      if (err) throw err;
 
-    // Display the employee data
-    console.table(res);
+      // Display the employee data
+      console.table(res);
 
-    // Go back to the main menu
-    startApp();
-  });
+      // Go back to the main menu
+      startApp();
+    }
+  );
 }
 
 // Function to view all departments
