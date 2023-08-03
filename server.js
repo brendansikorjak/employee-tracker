@@ -26,6 +26,7 @@ function startApp() {
         "View all employees",
         "Add an employee",
         "Update an employee role",
+        "View all roles",
         "View all departments",
         "Exit",
       ],
@@ -42,6 +43,10 @@ function startApp() {
 
         case "Update an employee role":
           updateEmployeeRole();
+          break;
+
+        case "View all roles":
+          viewRoles();
           break;
 
         case "View all departments":
@@ -89,6 +94,22 @@ function viewDepartments() {
     // Go back to the main menu
     startApp();
   });
+}
+
+// Function to view all roles
+function viewRoles() {
+  db.query(
+    "SELECT roles.id, roles.title, roles.salary, departments.department FROM roles JOIN departments ON roles.department_id = departments.id",
+    (err, res) => {
+      if (err) throw err;
+
+      // Display the department data
+      console.table(res);
+
+      // Go back to the main menu
+      startApp();
+    }
+  );
 }
 
 // Function to add an employee
@@ -165,7 +186,7 @@ function updateEmployeeRole() {
         "UPDATE employees SET ? WHERE ?",
         [
           {
-            role: answers.new_role,
+            role_id: answers.new_role,
           },
           {
             id: answers.employee_id,
