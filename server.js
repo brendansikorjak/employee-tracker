@@ -119,57 +119,176 @@ function viewRoles() {
 
 // Function to add an employee
 function addEmployee() {
-  inquirer
-    .prompt([
-      {
-        name: 'first_name',
-        type: 'input',
-        message: "Enter the employee's first name:",
-      },
-      {
-        name: 'last_name',
-        type: 'input',
-        message: "Enter the employee's last name:",
-      },
-      {
-        name: 'department',
-        type: 'input',
-        message: "Enter the employee's department:",
-      },
-      {
-        name: 'role',
-        type: 'input',
-        message: "Enter the employee's role:",
-      },
-      {
-        name: 'salary',
-        type: 'input',
-        message: "Enter the employee's salary:",
-        validate: (value) => {
-          const isValid = !isNaN(parseFloat(value));
-          return isValid || 'Please enter a valid number';
-        },
-      },
-    ])
-    .then((answers) => {
-      // Insert the new employee into the database
-      db.query(
-        'INSERT INTO employees SET ?',
-        {
-          first_name: answers.first_name,
-          last_name: answers.last_name,
-          department_id: answers.department,
-          role: answers.role,
-          salary: answers.salary,
-        },
-        (err, res) => {
-          if (err) throw err;
-          console.log('Employee added successfully!');
-          startApp();
-        }
-      );
+  // Query the database to get department and role choices
+  let departmentChoices = [];
+  let roleChoices = [];
+
+  db.query('SELECT * FROM departments', (err, departmentRes) => {
+    if (err) throw err;
+    departmentChoices = departmentRes.map((department) => ({
+      name: department.department,
+      value: department.id,
+    }));
+
+    db.query('SELECT * FROM roles', (err, roleRes) => {
+      if (err) throw err;
+      roleChoices = roleRes.map((role) => ({
+        name: role.title,
+        value: role.id,
+      }));
+
+      inquirer
+        .prompt([
+          {
+            name: 'first_name',
+            type: 'input',
+            message: "Enter the employee's first name:",
+          },
+          {
+            name: 'last_name',
+            type: 'input',
+            message: "Enter the employee's last name:",
+          },
+          // {
+          //   name: 'department_id',
+          //   type: 'list',
+          //   message: "Select the employee's department:",
+          //   choices: departmentChoices,
+          // },
+          {
+            name: 'role_id',
+            type: 'list',
+            message: "Select the employee's role:",
+            choices: roleChoices,
+          },
+          // {
+          //   name: 'salary',
+          //   type: 'input',
+          //   message: "Enter the employee's salary:",
+          //   validate: (value) => {
+          //     const isValid = !isNaN(parseFloat(value));
+          //     return isValid || 'Please enter a valid number';
+          //   },
+          // },
+        ])
+        .then((answers) => {
+          // Insert the new employee into the database
+          db.query(
+            'INSERT INTO employees SET ?',
+            {
+              first_name: answers.first_name,
+              last_name: answers.last_name,
+              // department_id: answers.department_id,
+              role_id: answers.role_id,
+              // salary: answers.salary,
+            },
+            (err, res) => {
+              if (err) throw err;
+              console.log('Employee added successfully!');
+              startApp();
+            }
+          );
+        });
     });
+  });
 }
+
+// function addEmployee() {
+//   inquirer
+//     .prompt([
+//       {
+//         name: 'first_name',
+//         type: 'input',
+//         message: "Enter the employee's first name:",
+//       },
+//       {
+//         name: 'last_name',
+//         type: 'input',
+//         message: "Enter the employee's last name:",
+//       },
+//       {
+//         name: 'department',
+//         type: 'input',
+//         message: "Enter the employee's department:",
+//       },
+//       {
+//         name: 'role',
+//         type: 'input',
+//         message: "Enter the employee's role:",
+//       },
+//       {
+//         name: 'salary',
+//         type: 'input',
+//         message: "Enter the employee's salary:",
+//         validate: (value) => {
+//           const isValid = !isNaN(parseFloat(value));
+//           return isValid || 'Please enter a valid number';
+//         },
+//       },
+//     ])
+
+//     .then((answers) => {
+//       // Retrieve department_id and role_id based on user input
+//       const departmentName = answers.department;
+//       const roleName = answers.role;
+
+//       // Find the corresponding department and role IDs
+//       db.query(
+//         'SELECT id FROM departments WHERE department = ?',
+//         departmentName,
+//         (err, departmentRes) => {
+//           if (err) throw err;
+//           const departmentId = departmentRes[0].id;
+
+//           db.query(
+//             'SELECT id FROM roles WHERE title = ?',
+//             roleName,
+//             (err, roleRes) => {
+//               if (err) throw err;
+//               const roleId = roleRes[0].id;
+
+//               // Insert the new employee into the database
+//               db.query(
+//                 'INSERT INTO employees SET ?',
+//                 {
+//                   first_name: answers.first_name,
+//                   last_name: answers.last_name,
+//                   department_id: departmentId,
+//                   role_id: roleId,
+//                   salary: answers.salary,
+//                 },
+//                 (err, res) => {
+//                   if (err) throw err;
+//                   console.log('Employee added successfully!');
+//                   startApp();
+//                 }
+//               );
+//             }
+//           );
+//         }
+//       );
+//     });
+
+// .then((answers) => {
+//   // Insert the new employee into the database
+//   db.query(
+//     'INSERT INTO employees SET ?',
+//     {
+//       first_name: answers.first_name,
+//       last_name: answers.last_name,
+//       department_id: answers.department,
+//       role_id: answers.role,
+//       salary: answers.salary,
+//     },
+//     (err, res) => {
+//       if (err) throw err;
+//       console.log('Employee added successfully!');
+//       startApp();
+//     }
+//   );
+// });
+// }
+
 // Function to update an employee's role
 function updateEmployeeRole() {
   inquirer
