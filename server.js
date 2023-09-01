@@ -15,6 +15,45 @@ db.connect((err) => {
   startApp();
 });
 
+let departmentChoices = [];
+let roleChoices = [];
+let employeeChoices = [];
+
+db.query('SELECT * FROM departments', (err, departmentRes) => {
+  if (err) throw err;
+  departmentChoices = departmentRes.map((department) => ({
+    name: department.department,
+    value: department.id,
+  }));
+});
+
+db.query('SELECT * FROM roles', (err, roleRes) => {
+  if (err) throw err;
+  roleChoices = roleRes.map((role) => ({
+    name: role.title,
+    value: role.id,
+  }));
+});
+
+// db.query(
+//   "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employees;",
+//   (err, employeeRes) => {
+//     if (err) throw err;
+//     employeeChoices = employeeRes.map((employee) => ({
+//       name: employee.full_name,
+//       value: employee.id,
+//     }));
+//   }
+// );
+
+db.query('SELECT * FROM employees;', (err, employeeRes) => {
+  if (err) throw err;
+  employeeChoices = employeeRes.map((employee) => ({
+    name: employee.first_name,
+    value: employee.id,
+  }));
+});
+
 // Function to start the application
 function startApp() {
   inquirer
@@ -25,10 +64,12 @@ function startApp() {
       choices: [
         'View all employees',
         'Add an employee',
-        'Update an employee role',
+        "Update an employee' role",
         'View all roles',
         'Add a role',
         'View all departments',
+        'Add a department',
+        'Update a department',
         'Exit',
       ],
     })
@@ -42,7 +83,7 @@ function startApp() {
           addEmployee();
           break;
 
-        case 'Update an employee role':
+        case "Update an employee' role":
           updateEmployeeRole();
           break;
 
@@ -56,6 +97,14 @@ function startApp() {
 
         case 'View all departments':
           viewDepartments();
+          break;
+
+        case 'Add a department':
+          addDepartment();
+          break;
+
+        case 'Update a department':
+          updateDepartment();
           break;
 
         case 'Exit':
@@ -119,175 +168,42 @@ function viewRoles() {
 
 // Function to add an employee
 function addEmployee() {
-  // Query the database to get department and role choices
-  let departmentChoices = [];
-  let roleChoices = [];
-
-  db.query('SELECT * FROM departments', (err, departmentRes) => {
-    if (err) throw err;
-    departmentChoices = departmentRes.map((department) => ({
-      name: department.department,
-      value: department.id,
-    }));
-
-    db.query('SELECT * FROM roles', (err, roleRes) => {
-      if (err) throw err;
-      roleChoices = roleRes.map((role) => ({
-        name: role.title,
-        value: role.id,
-      }));
-
-      inquirer
-        .prompt([
-          {
-            name: 'first_name',
-            type: 'input',
-            message: "Enter the employee's first name:",
-          },
-          {
-            name: 'last_name',
-            type: 'input',
-            message: "Enter the employee's last name:",
-          },
-          // {
-          //   name: 'department_id',
-          //   type: 'list',
-          //   message: "Select the employee's department:",
-          //   choices: departmentChoices,
-          // },
-          {
-            name: 'role_id',
-            type: 'list',
-            message: "Select the employee's role:",
-            choices: roleChoices,
-          },
-          // {
-          //   name: 'salary',
-          //   type: 'input',
-          //   message: "Enter the employee's salary:",
-          //   validate: (value) => {
-          //     const isValid = !isNaN(parseFloat(value));
-          //     return isValid || 'Please enter a valid number';
-          //   },
-          // },
-        ])
-        .then((answers) => {
-          // Insert the new employee into the database
-          db.query(
-            'INSERT INTO employees SET ?',
-            {
-              first_name: answers.first_name,
-              last_name: answers.last_name,
-              // department_id: answers.department_id,
-              role_id: answers.role_id,
-              // salary: answers.salary,
-            },
-            (err, res) => {
-              if (err) throw err;
-              console.log('Employee added successfully!');
-              startApp();
-            }
-          );
-        });
+  inquirer
+    .prompt([
+      {
+        name: 'first_name',
+        type: 'input',
+        message: "Enter the employee's first name:",
+      },
+      {
+        name: 'last_name',
+        type: 'input',
+        message: "Enter the employee's last name:",
+      },
+      {
+        name: 'role_id',
+        type: 'list',
+        message: "Select the employee's role:",
+        choices: roleChoices,
+      },
+    ])
+    .then((answers) => {
+      // Insert the new employee into the database
+      db.query(
+        'INSERT INTO employees SET ?',
+        {
+          first_name: answers.first_name,
+          last_name: answers.last_name,
+          role_id: answers.role_id,
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.log('Employee added successfully!');
+          startApp();
+        }
+      );
     });
-  });
 }
-
-// function addEmployee() {
-//   inquirer
-//     .prompt([
-//       {
-//         name: 'first_name',
-//         type: 'input',
-//         message: "Enter the employee's first name:",
-//       },
-//       {
-//         name: 'last_name',
-//         type: 'input',
-//         message: "Enter the employee's last name:",
-//       },
-//       {
-//         name: 'department',
-//         type: 'input',
-//         message: "Enter the employee's department:",
-//       },
-//       {
-//         name: 'role',
-//         type: 'input',
-//         message: "Enter the employee's role:",
-//       },
-//       {
-//         name: 'salary',
-//         type: 'input',
-//         message: "Enter the employee's salary:",
-//         validate: (value) => {
-//           const isValid = !isNaN(parseFloat(value));
-//           return isValid || 'Please enter a valid number';
-//         },
-//       },
-//     ])
-
-//     .then((answers) => {
-//       // Retrieve department_id and role_id based on user input
-//       const departmentName = answers.department;
-//       const roleName = answers.role;
-
-//       // Find the corresponding department and role IDs
-//       db.query(
-//         'SELECT id FROM departments WHERE department = ?',
-//         departmentName,
-//         (err, departmentRes) => {
-//           if (err) throw err;
-//           const departmentId = departmentRes[0].id;
-
-//           db.query(
-//             'SELECT id FROM roles WHERE title = ?',
-//             roleName,
-//             (err, roleRes) => {
-//               if (err) throw err;
-//               const roleId = roleRes[0].id;
-
-//               // Insert the new employee into the database
-//               db.query(
-//                 'INSERT INTO employees SET ?',
-//                 {
-//                   first_name: answers.first_name,
-//                   last_name: answers.last_name,
-//                   department_id: departmentId,
-//                   role_id: roleId,
-//                   salary: answers.salary,
-//                 },
-//                 (err, res) => {
-//                   if (err) throw err;
-//                   console.log('Employee added successfully!');
-//                   startApp();
-//                 }
-//               );
-//             }
-//           );
-//         }
-//       );
-//     });
-
-// .then((answers) => {
-//   // Insert the new employee into the database
-//   db.query(
-//     'INSERT INTO employees SET ?',
-//     {
-//       first_name: answers.first_name,
-//       last_name: answers.last_name,
-//       department_id: answers.department,
-//       role_id: answers.role,
-//       salary: answers.salary,
-//     },
-//     (err, res) => {
-//       if (err) throw err;
-//       console.log('Employee added successfully!');
-//       startApp();
-//     }
-//   );
-// });
-// }
 
 // Function to update an employee's role
 function updateEmployeeRole() {
@@ -295,13 +211,15 @@ function updateEmployeeRole() {
     .prompt([
       {
         name: 'employee_id',
-        type: 'input',
-        message: 'Enter the ID of the employee whose role you want to update:',
+        type: 'list',
+        message: 'Select the employee whose role you want to update:',
+        choices: employeeChoices,
       },
       {
         name: 'new_role',
-        type: 'input',
-        message: 'Enter the new role for the employee:',
+        type: 'list',
+        message: 'Select the new role for the employee:',
+        choices: roleChoices,
       },
     ])
     .then((answers) => {
@@ -335,8 +253,9 @@ function addRole() {
       },
       {
         name: 'department',
-        type: 'input',
-        message: "Enter the role's department:",
+        type: 'list',
+        message: "Select the role's department:",
+        choices: departmentChoices,
       },
       {
         name: 'salary',
@@ -363,5 +282,65 @@ function addRole() {
           startApp();
         }
       );
+    });
+}
+
+function addDepartment() {
+  inquirer
+    .prompt([
+      {
+        name: 'department',
+        type: 'input',
+        message: 'Enter the name of the new department:',
+      },
+    ])
+    .then((answers) => {
+      db.query(
+        'INSERT INTO departments SET ?',
+        {
+          department: answers.department,
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.log('Department added successfully!');
+          startApp();
+        }
+      );
+    });
+}
+
+// to do: fix the null department id 4's name
+
+// update function to rename a department
+function updateDepartment() {
+  inquirer
+    .prompt([
+      {
+        name: 'department_id',
+        type: 'list',
+        message: 'Select the department:',
+        choices: departmentChoices,
+      },
+
+      {
+        name: 'new_name',
+        type: 'input',
+        message: 'Enter the new name:',
+      },
+    ])
+    .then((answers) => {
+      db.query('INSERT INTO departments SET ? WHERE ?')[
+        ({
+          department_id: answers.department_id,
+        },
+        {
+          department: answers.new_name,
+        })
+      ],
+        (err, res) => {
+          if (err) throw err;
+          console.log('Department updated successfully!');
+          startApp();
+        };
     });
 }
