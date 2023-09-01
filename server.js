@@ -12,47 +12,63 @@ const db = mysql.createConnection({
 db.connect((err) => {
   if (err) throw err;
   console.log('Connected to the database.');
-  startApp();
+  fetchData();
 });
 
 let departmentChoices = [];
 let roleChoices = [];
 let employeeChoices = [];
 
-db.query('SELECT * FROM departments', (err, departmentRes) => {
-  if (err) throw err;
-  departmentChoices = departmentRes.map((department) => ({
-    name: department.department,
-    value: department.id,
-  }));
-});
+async function fetchData() {
+  try {
+    // Fetch role data
+    const roleRes = await new Promise((resolve, reject) => {
+      db.query('SELECT * FROM roles', (err, result) => {
+        if (err) reject(err);
+        resolve(result);
+      });
+    });
 
-db.query('SELECT * FROM roles', (err, roleRes) => {
-  if (err) throw err;
-  roleChoices = roleRes.map((role) => ({
-    name: role.title,
-    value: role.id,
-  }));
-});
+    roleChoices = roleRes.map((role) => ({
+      name: role.title,
+      value: role.id,
+    }));
 
-// db.query(
-//   "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employees;",
-//   (err, employeeRes) => {
-//     if (err) throw err;
-//     employeeChoices = employeeRes.map((employee) => ({
-//       name: employee.full_name,
-//       value: employee.id,
-//     }));
-//   }
-// );
+    // Fetch employee data
+    const employeeRes = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id FROM employees",
+        (err, result) => {
+          if (err) reject(err);
+          resolve(result);
+        }
+      );
+    });
 
-db.query('SELECT * FROM employees;', (err, employeeRes) => {
-  if (err) throw err;
-  employeeChoices = employeeRes.map((employee) => ({
-    name: employee.first_name,
-    value: employee.id,
-  }));
-});
+    employeeChoices = employeeRes.map((employee) => ({
+      name: employee.full_name,
+      value: employee.id,
+    }));
+
+    // Fetch department data
+    const departmentRes = await new Promise((resolve, reject) => {
+      db.query('SELECT * FROM departments', (err, result) => {
+        if (err) reject(err);
+        resolve(result);
+      });
+    });
+
+    departmentChoices = departmentRes.map((department) => ({
+      name: department.department,
+      value: department.id,
+    }));
+
+    // Now that data is fetched, it will start the application
+    startApp();
+  } catch (err) {
+    console.error('Error fetching data:', err);
+  }
+}
 
 // Function to start the application
 function startApp() {
@@ -122,8 +138,6 @@ function startApp() {
 // Function to view all employees
 function viewEmployees() {
   db.query(
-    // "SELECT * FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id",
-    // "SELECT first_name AS [First Name], last_name AS [Last Name] FROM employees",
     'SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department, roles.salary FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id',
     (err, res) => {
       if (err) throw err;
@@ -157,7 +171,7 @@ function viewRoles() {
     (err, res) => {
       if (err) throw err;
 
-      // Display the department data
+      // Display the role data
       console.table(res);
 
       // Go back to the main menu
@@ -242,6 +256,7 @@ function updateEmployeeRole() {
       );
     });
 }
+
 // Function to add a role
 function addRole() {
   inquirer
@@ -285,6 +300,7 @@ function addRole() {
     });
 }
 
+// Function to add a department
 function addDepartment() {
   inquirer
     .prompt([
@@ -295,6 +311,7 @@ function addDepartment() {
       },
     ])
     .then((answers) => {
+      // Insert the new department into the database
       db.query(
         'INSERT INTO departments SET ?',
         {
@@ -309,16 +326,14 @@ function addDepartment() {
     });
 }
 
-// to do: fix the null department id 4's name
-
-// update function to rename a department
+// Function to rename a department
 function updateDepartment() {
   inquirer
     .prompt([
       {
         name: 'department_id',
         type: 'list',
-        message: 'Select the department:',
+        message: 'Select the department you would like to rename:',
         choices: departmentChoices,
       },
 
