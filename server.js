@@ -85,7 +85,6 @@ function startApp() {
         'Add a role',
         'View all departments',
         'Add a department',
-        'Update a department',
         'Exit',
       ],
     })
@@ -117,10 +116,6 @@ function startApp() {
 
         case 'Add a department':
           addDepartment();
-          break;
-
-        case 'Update a department':
-          updateDepartment();
           break;
 
         case 'Exit':
@@ -323,39 +318,5 @@ function addDepartment() {
           startApp();
         }
       );
-    });
-}
-
-// Function to rename a department
-function updateDepartment() {
-  inquirer
-    .prompt([
-      {
-        name: 'department_id',
-        type: 'list',
-        message: 'Select the department you would like to rename:',
-        choices: departmentChoices,
-      },
-
-      {
-        name: 'new_name',
-        type: 'input',
-        message: 'Enter the new name:',
-      },
-    ])
-    .then((answers) => {
-      db.query('INSERT INTO departments SET ? WHERE ?')[
-        ({
-          department_id: answers.department_id,
-        },
-        {
-          department: answers.new_name,
-        })
-      ],
-        (err, res) => {
-          if (err) throw err;
-          console.log('Department updated successfully!');
-          startApp();
-        };
     });
 }
