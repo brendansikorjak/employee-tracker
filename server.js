@@ -140,8 +140,7 @@ function viewEmployees() {
       // Display the employee data
       console.table(res);
 
-      // Go back to the main menu
-      startApp();
+      fetchData();
     }
   );
 }
@@ -154,8 +153,7 @@ function viewDepartments() {
     // Display the department data
     console.table(res);
 
-    // Go back to the main menu
-    startApp();
+    fetchData();
   });
 }
 
@@ -169,8 +167,7 @@ function viewRoles() {
       // Display the role data
       console.table(res);
 
-      // Go back to the main menu
-      startApp();
+      fetchData();
     }
   );
 }
@@ -208,7 +205,7 @@ function addEmployee() {
         (err, res) => {
           if (err) throw err;
           console.log('Employee added successfully!');
-          startApp();
+          fetchData();
         }
       );
     });
@@ -246,7 +243,7 @@ function updateEmployeeRole() {
         (err, res) => {
           if (err) throw err;
           console.log('Employee role updated successfully!');
-          startApp();
+          fetchData();
         }
       );
     });
@@ -289,7 +286,7 @@ function addRole() {
         (err, res) => {
           if (err) throw err;
           console.log('Role added successfully!');
-          startApp();
+          fetchData();
         }
       );
     });
@@ -315,7 +312,7 @@ function addDepartment() {
         (err, res) => {
           if (err) throw err;
           console.log('Department added successfully!');
-          startApp();
+          fetchData();
         }
       );
     });
